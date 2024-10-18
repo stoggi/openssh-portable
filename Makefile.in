@@ -272,6 +272,10 @@ sftp$(EXEEXT): $(LIBCOMPAT) libssh.a $(SFTP_OBJS)
 logintest: logintest.o $(LIBCOMPAT) libssh.a loginrec.o
 	$(LD) -o $@ logintest.o $(LDFLAGS) loginrec.o -lopenbsd-compat -lssh $(LIBS)
 
+sk-libfido2.so: sk-usbhid.c $(LIBCOMPAT) libssh.a
+	$(CC) -o $@ -shared $(CFLAGS_NOPIE) $(CPPFLAGS) -DSK_STANDALONE $(PICFLAG) sk-usbhid.c \
+	$(LDFLAGS_NOPIE) -lssh -lopenbsd-compat $(LIBS) $(LIBFIDO2) $(CHANNELLIBS)
+
 $(MANPAGES): $(MANPAGES_IN)
 	if test "$(MANTYPE)" = "cat"; then \
 		manpage=$(srcdir)/`echo $@ | sed 's/\.[1-9]\.out$$/\.0/'`; \
@@ -296,6 +300,7 @@ moduli:
 clean:	regressclean
 	rm -f *.o *.lo *.a $(TARGETS) logintest config.cache config.log
 	rm -f *.out core survey
+	rm -f sk-libfido2.so
 	rm -f regress/check-perm$(EXEEXT)
 	rm -f regress/mkdtemp$(EXEEXT)
 	rm -f regress/unittests/test_helper/*.a
